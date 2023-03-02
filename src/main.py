@@ -1,6 +1,6 @@
 from huffman import Huffman
 import ast
-import os.path as path
+import os.path
 import ntpath
 
 
@@ -9,8 +9,12 @@ def get_file_name(path):
     return tail or ntpath.basename(head)
 
 
+def get_base_folder(path):
+    return os.path.dirname(path)
+
+
 def path_exists(file_path):
-    return path.exists(file_path)
+    return os.path.exists(file_path)
 
 
 if __name__ == "__main__":
@@ -42,14 +46,16 @@ if __name__ == "__main__":
 
             file_name = get_file_name(path=file_path).split(".")[0]
 
+            base_folder = get_base_folder(file_path)
+
             with open(file_path, 'r') as file:
                 data = huff.compress(file.read())  # Compress given file
 
-            with open(f"{file_name}_compressed.bin", 'wb') as file:
+            with open(f"{base_folder}/{file_name}_compressed.bin", 'wb') as file:
                 # Output the compressed data into a new binary file
                 data["encoded"].tofile(file)
 
-            with open(f"{file_name}_utils.txt", 'w') as file:
+            with open(f"{base_folder}/{file_name}_utils.txt", 'w') as file:
                 # Save the utilities(code table, padding) in another file
                 file.write(str(data["utils"]))
 
@@ -81,13 +87,15 @@ if __name__ == "__main__":
             file_name = get_file_name(compressed_file_path).split(".")[
                 0].split("_")[0]
 
+            base_folder = get_base_folder(compressed_file_path)
+
             try:
                 with open(utils_path, 'r') as file_utils, open(compressed_file_path, 'rb') as file_compressed:
                     # Decompress the compressed file
                     decompressed = huff.decompress(
                         utils=ast.literal_eval(file_utils.read()), file=file_compressed)
 
-                with open(f"{file_name}.txt", "w") as file_uncomp:
+                with open(f"{base_folder}/{file_name}.txt", "w") as file_uncomp:
                     # Output the decompressed data to a new file
                     file_uncomp.write(decompressed)
 
